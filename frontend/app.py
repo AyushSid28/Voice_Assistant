@@ -2,31 +2,31 @@ import sys
 import os
 import streamlit as st
 import speech_recognition as sr
-import pyttsx3  # Text-to-Speech Engine
+import pyttsx3  
 
-# Add project root directory to Python's path
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from backend.utils.helper import process_text  # Import after updating sys.path
+from backend.utils.helper import process_text  
 
 st.title("🎤 Voice Assistant AI")
 
-# Initialize speech recognizer
+
 recognizer = sr.Recognizer()
 
-# List available microphones
+
 mic_list = sr.Microphone.list_microphone_names()
 st.write("Available Microphones:", mic_list)
 
-# Select the default microphone (adjust index if needed)
+
 mic = sr.Microphone(device_index=0)
 
 def speak(text):
     """Convert text to speech with a fresh instance of pyttsx3."""
-    engine = pyttsx3.init()  # Initialize a new instance each time
+    engine = pyttsx3.init()  
     engine.setProperty('rate', 150)
     engine.setProperty('volume', 1)
     engine.say(text)
-    engine.runAndWait()  # Prevent event loop issues
+    engine.runAndWait()  
 
 def listen_for_hey_john():
     """Listen for the wake word 'John'."""
@@ -67,10 +67,10 @@ def assistant_process():
         response = process_text(user_input)
         
         st.write(f"**AI Response:** {response}")
-        speak(response)  # Speak the response out loud
+        speak(response)  
     else:
         st.error("❌ Didn't hear 'John'. Try again.")
 
-# Button to trigger assistant (NO threading)
+
 if st.button("Activate Assistant (Say 'John')"):
     assistant_process()

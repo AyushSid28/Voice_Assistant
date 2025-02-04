@@ -11,29 +11,24 @@ import time
 from bs4 import BeautifulSoup
 from backend.config.config import OPENAI_API_KEY
 
-# Initialize OpenAI client
 client = openai.OpenAI(api_key=OPENAI_API_KEY)
 
-# Initialize text-to-speech engine
 engine = pyttsx3.init()
 speech_queue = queue.Queue()
-speech_running = threading.Event()  # Flag to track speech state
-
+speech_running = threading.Event()  
 
 def speech_worker():
-    """ Continuously processes speech queue to avoid overlapping speech """
     while True:
         text = speech_queue.get()
         if text is None:
-            break  # Exit loop if None is received
+            break  
 
         if speech_running.is_set():
-            time.sleep(0.1)  # Wait if speech is already running
+            time.sleep(0.1)  
         
         speech_running.set()
-        print(f"Speaking: {text}")  # Debug print
+        print(f"Speaking: {text}")
         
-        # ✅ FIX: Create a new pyttsx3 instance every time to avoid threading issues
         engine = pyttsx3.init()
         engine.say(text)
         engine.runAndWait()
@@ -41,24 +36,20 @@ def speech_worker():
         speech_running.clear()
         speech_queue.task_done()
 
-# Start speech thread
 speech_thread = threading.Thread(target=speech_worker, daemon=True)
 speech_thread.start()
 
 def speak(text):
-    """ Adds text to speech queue for processing """
     speech_queue.put(text)
 
-# Function to get the current time
 def get_time():
     now = datetime.datetime.now()
     response = now.strftime("The current time is %I:%M %p.")
     speak(response)
     return response
 
-# Function to fetch weather data
 def get_weather(city="New Delhi"):
-    api_key = "YOUR_OPENWEATHER_API_KEY"  # Replace with your OpenWeather API key
+    api_key = "YOUR_OPENWEATHER_API_KEY"
     url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric"
     response = requests.get(url).json()
 
@@ -73,7 +64,6 @@ def get_weather(city="New Delhi"):
     speak(error_message)
     return error_message
 
-# Function to open websites
 def open_website(site_name):
     websites = {
         "google": "https://www.google.com",
@@ -93,14 +83,11 @@ def open_website(site_name):
     speak(error_message)
     return error_message
 
-# Function to play YouTube videos
 def play_youtube(query):
-    """Search YouTube and play the first available video."""
     search_url = f"https://www.youtube.com/results?search_query={query.replace(' ', '+')}"
     response = requests.get(search_url)
     soup = BeautifulSoup(response.text, "html.parser")
 
-    # Find first video link
     video_links = soup.find_all("a", href=True)
     for link in video_links:
         if "/watch?" in link["href"]:
@@ -114,7 +101,6 @@ def play_youtube(query):
     speak(error_message)
     return error_message
 
-# Function to set reminders
 def set_reminder(task):
     reminders_file = "reminders.json"
 
@@ -133,7 +119,6 @@ def set_reminder(task):
     speak(response)
     return response
 
-# Function to fetch reminders
 def get_reminders():
     reminders_file = "reminders.json"
 
@@ -148,9 +133,8 @@ def get_reminders():
     speak(error_message)
     return error_message
 
-# Function to fetch top news headlines
 def get_news():
-    api_key = "YOUR_NEWSAPI_KEY"  # Replace with your News API key
+    api_key = "YOUR_NEWSAPI_KEY"
     url = f"https://newsapi.org/v2/top-headlines?country=in&apiKey={api_key}"
     response = requests.get(url).json()
 
@@ -164,7 +148,6 @@ def get_news():
     speak(error_message)
     return error_message
 
-# Main process function
 def process_text(user_input):
     user_input = user_input.lower()
 
@@ -194,7 +177,6 @@ def process_text(user_input):
         return get_news()
 
     else:
-        
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": user_input}]
