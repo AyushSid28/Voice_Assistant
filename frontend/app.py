@@ -8,7 +8,8 @@ import pyttsx3
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from backend.utils.helper import process_text  
 
-st.title("🎤 Voice Assistant AI")
+
+st.title("Voice Assistant AI")
 
 
 recognizer = sr.Recognizer()
@@ -20,18 +21,20 @@ st.write("Available Microphones:", mic_list)
 
 mic = sr.Microphone(device_index=0)
 
+#Convert Speech to Text
+
 def speak(text):
-    """Convert text to speech with a fresh instance of pyttsx3."""
+   
     engine = pyttsx3.init()  
-    engine.setProperty('rate', 150)
-    engine.setProperty('volume', 1)
+    engine.setProperty('rate', 150)  
+    engine.setProperty('volume', 1)  
     engine.say(text)
     engine.runAndWait()  
 
-def listen_for_hey_john():
-    """Listen for the wake word 'John'."""
+def listen_for_wake_word():
+   
     with mic as source:
-        st.write("🎤 Listening for 'John'...")
+        st.write("Listening for 'Ayush' to activate...")
         recognizer.adjust_for_ambient_noise(source, duration=1)
         audio = recognizer.listen(source, timeout=5)
 
@@ -43,10 +46,12 @@ def listen_for_hey_john():
     except sr.RequestError:
         return None
 
+
+#Get the User Question after assistant activation
 def get_voice_input():
-    """Listen for user's question."""
+    
     with mic as source:
-        st.write("🗣️ Listening for your question...")
+        st.write("Listening for your question...")
         recognizer.adjust_for_ambient_noise(source, duration=1)
         audio = recognizer.listen(source, timeout=10)
 
@@ -58,19 +63,19 @@ def get_voice_input():
         return "Speech Recognition API is not available."
 
 def assistant_process():
-    """Handles assistant activation inline (without threading)."""
-    command = listen_for_hey_john()
     
-    if command and "john" in command:
-        st.success("✅ Assistant Activated! Listening...")
+    command = listen_for_wake_word()
+    
+    if command and "ayush" in command:
+        st.success("Assistant Activated! How can I help?")
         user_input = get_voice_input()
         response = process_text(user_input)
         
-        st.write(f"**AI Response:** {response}")
+        st.write(f"Response: {response}")
         speak(response)  
     else:
-        st.error("❌ Didn't hear 'John'. Try again.")
+        st.error("Didn't hear 'Ayush'. Please try again.")
 
-
-if st.button("Activate Assistant (Say 'John')"):
+#Activate the assistant Button
+if st.button("Activate Assistant (Say 'Ayush')"):
     assistant_process()
